@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#FAFBFC">
+<title>Resina Lab · Guía Interactiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light only;
+    --bg:#F7FAFB;
+    --card:#FFFFFF;
+    --accent:#0B5FFF;
+    --accent-deep:#0A3FA8;
+    --accent-bg:#DCE9FF;
+    --ink:#14171A;
+    --ink-soft:#5B6570;
+    --line:#E4E9ED;
+    --good:#00A86B;
+    --good-bg:#D9F2E6;
+    --warn:#F2A900;
+    --warn-bg:#FCEDC7;
+    --shadow: 0 4px 16px rgba(11,20,40,0.08);
+    --radius:14px;
+    --font-display:'Baloo 2', 'Segoe UI', sans-serif;
+    --font-body:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'Space Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html, body{ background:var(--bg) !important; color:var(--ink) !important; }
+  html{ height:100%; }
+  body{
+    margin:0; min-height:100%; font-family:var(--font-body); -webkit-font-smoothing:antialiased;
+    transition: background-color .35s ease;
+  }
+  h1,h2,h3{ font-family:var(--font-display); font-weight:700; color:var(--accent-deep); margin:0; }
+  p{ margin:0; color:var(--ink-soft); line-height:1.6; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--accent-bg); }
+  .mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+
+  /* ---------- App shell ---------- */
+  .app{ max-width:900px; margin:0 auto; padding:0 1.1rem 3rem 1.1rem; min-height:100vh; }
+  .topbar{
+    position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 0; background:var(--bg); border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:.65rem; }
+  .brand .badge{
+    width:38px; height:38px; border-radius:38% 62% 55% 45% / 40% 45% 55% 60%; position:relative;
+    background:radial-gradient(circle at 30% 26%, #6FA0FF 0%, var(--accent) 45%, var(--accent-deep) 100%);
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+  .brand .badge::after{
+    content:''; position:absolute; top:22%; left:26%; width:30%; height:22%; border-radius:50%;
+    background:rgba(255,255,255,0.55); filter:blur(1px);
+  }
+  .brand b{ font-family:var(--font-display); font-weight:700; font-size:1.25rem; color:var(--accent-deep); }
+  .brand span{ display:block; font-size:.66rem; color:var(--ink-soft); letter-spacing:.05em; font-family:var(--font-mono); }
+  #homeBtn{
+    display:none; align-items:center; gap:.4rem; background:var(--card); border:1px solid var(--line);
+    color:var(--accent-deep); font-weight:700; font-size:.8rem; padding:.5rem .9rem; border-radius:8px; cursor:pointer;
+  }
+  #homeBtn:hover{ border-color:var(--accent); }
+  #homeBtn.show{ display:inline-flex; }
+
+  /* ---------- Home grid ---------- */
+  #home{ animation:fadeIn .25s ease; }
+  .home-head{ padding:1.4rem 0 1.5rem 0; }
+  .home-head h1{ font-size:1.9rem; line-height:1.2; }
+  .home-head p{ margin-top:.5rem; font-size:.92rem; max-width:46ch; }
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem; }
+  @media (max-width:680px){ .grid{ grid-template-columns:repeat(2,1fr);} }
+  .tile{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:1.1rem .95rem;
+    text-align:left; cursor:pointer; box-shadow:none; transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    display:flex; flex-direction:column; gap:.6rem; min-height:120px; position:relative; overflow:hidden;
+  }
+  .tile::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, transparent, var(--tile-accent,var(--accent)), transparent);
+    opacity:0; transition:opacity .15s;
+  }
+  .tile:hover{ transform:translateY(-3px); border-color:var(--tile-accent,var(--accent)); box-shadow:var(--shadow); }
+  .tile:hover::before{ opacity:1; }
+  .tile .ic{
+    font-size:1.15rem; width:2.6rem; height:2.6rem; position:relative;
+    border-radius:38% 62% 58% 42% / 42% 40% 60% 58%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.16);
+  }
+  .tile .ic::after{
+    content:''; position:absolute; top:18%; left:22%; width:32%; height:24%; border-radius:50%;
+    background:rgba(255,255,255,0.6); filter:blur(0.5px);
+  }
+  .tile b{ font-size:.87rem; color:var(--ink); font-weight:700; line-height:1.25; }
+  .tile small{ font-size:.71rem; color:var(--ink-soft); line-height:1.3; font-family:var(--font-mono); letter-spacing:-.01em; }
+
+  /* ---------- Panel ---------- */
+  #panel{ display:none; animation:fadeIn .25s ease; }
+  #panel.show{ display:block; }
+  #home.hide{ display:none; }
+  .panel-head{ margin-bottom:1.3rem; padding-bottom:1rem; border-bottom:1px solid var(--line); }
+  .panel-head .eyebrow{
+    font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); font-weight:700;
+  }
+  .panel-head h2{ font-size:1.7rem; margin-top:.3rem; }
+  .panel-head p{ margin-top:.5rem; font-size:.9rem; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:none;} }
+
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1.15rem 1.2rem; position:relative; }
+  .card + .card{ margin-top:.8rem; }
+
+  /* ---------- Chip selector ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+  .chip{
+    background:var(--card); border:1.5px solid var(--line); color:var(--ink); font-weight:700; font-size:.83rem;
+    padding:.48rem .9rem; border-radius:8px; cursor:pointer; transition:all .12s ease;
+  }
+  .chip:hover{ border-color:var(--accent); }
+  .chip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  /* ---------- Action buttons ---------- */
+  .btn{
+    display:inline-block; background:var(--ink); color:#fff; font-family:var(--font-body); font-weight:700;
+    font-size:.85rem; padding:.75rem 1.3rem; border-radius:10px; border:none; cursor:pointer; text-decoration:none;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .btn:hover{ background:var(--accent-deep); transform:translateY(-1px); }
+  .btn-primary{
+    background:linear-gradient(180deg, #1B6EFF, var(--accent-deep)); color:#fff; font-size:.9rem; padding:.9rem 1.7rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 6px 16px rgba(11,95,255,0.35);
+  }
+  .btn-primary:hover{ transform:translateY(-1px); }
+
+  .result-card{
+    background:var(--accent-bg); border:1px solid var(--line); border-radius:12px; padding:1.25rem 1.3rem;
+    animation:fadeIn .2s ease; border-left:4px solid var(--accent);
+  }
+  .result-card h3{ font-size:1.15rem; }
+  .result-tags{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem; }
+  .result-tags span{
+    background:var(--card); color:var(--accent-deep); font-size:.7rem; font-weight:700; font-family:var(--font-mono);
+    padding:.26rem .55rem; border-radius:6px; border:1px solid var(--line);
+  }
+  .result-card ul{ margin:.7rem 0 0 0; padding-left:1.1rem; }
+  .result-card li{ font-size:.87rem; color:var(--ink-soft); margin-bottom:.3rem; line-height:1.5; }
+
+  /* ---------- Recipe tool ---------- */
+  .recipe-meta{ display:flex; gap:.4rem; flex-wrap:wrap; margin:.5rem 0 1rem 0; }
+  .recipe-meta span{ background:var(--accent-bg); color:var(--accent-deep); font-size:.68rem; font-weight:700; font-family:var(--font-mono); padding:.26rem .55rem; border-radius:6px; }
+  .cols2{ display:grid; grid-template-columns:1fr 1.3fr; gap:1.2rem; }
+  @media (max-width:640px){ .cols2{ grid-template-columns:1fr; } }
+  .cols2 h4{ font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:.6rem; }
+
+  /* ---------- Checklist / steps ---------- */
+  .check-item{ display:flex; align-items:flex-start; gap:.55rem; padding:.32rem 0; cursor:pointer; }
+  .check-item input{ margin-top:.24rem; accent-color:var(--accent); width:15px; height:15px; flex:none; }
+  .check-item span{ font-size:.87rem; color:var(--ink); }
+  .check-item.done span{ color:#a9b0b8; text-decoration:line-through; }
+  .bar-track{ height:6px; background:var(--accent-bg); border-radius:999px; overflow:hidden; margin-top:.6rem; }
+  .bar-fill{ height:100%; background:var(--accent); width:0%; transition:width .3s; border-radius:999px; }
+  .count-pill{ font-size:.72rem; color:var(--ink-soft); font-family:var(--font-mono); }
+
+  .steps{ counter-reset:step; }
+  .step{ position:relative; padding:.55rem 0 .55rem 2.2rem; border-bottom:1px dashed var(--line); cursor:pointer; }
+  .step:last-child{ border-bottom:none; }
+  .step::before{
+    counter-increment:step; content:counter(step);
+    position:absolute; left:0; top:.45rem; width:1.45rem; height:1.45rem; border-radius:50%;
+    background:var(--accent); color:#fff; font-size:.72rem; display:flex; align-items:center; justify-content:center; font-weight:700;
+  }
+  .step.done::before{ content:'✓'; background:var(--good); }
+  .step span{ font-size:.86rem; color:var(--ink); }
+  .step.done span{ color:#a9b0b8; text-decoration:line-through; }
+
+  .tip-box{
+    margin-top:1rem; background:var(--warn-bg); border-left:3px solid var(--warn); border-radius:0 10px 10px 0;
+    padding:.8rem 1rem; font-size:.85rem; color:#7a5a08;
+  }
+
+  /* ---------- Accordion ---------- */
+  details.acc{ background:var(--card); border:1px solid var(--line); border-radius:10px; margin-bottom:.5rem; overflow:hidden; }
+  details.acc summary{
+    list-style:none; cursor:pointer; padding:.75rem .9rem; font-weight:700; color:var(--ink); font-size:.85rem;
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  }
+  details.acc summary::-webkit-details-marker{ display:none; }
+  details.acc summary::after{ content:'+'; font-size:1.1rem; color:var(--accent); flex:none; transition:transform .2s; }
+  details.acc[open] summary::after{ transform:rotate(45deg); }
+  details.acc .acc-body{ padding:0 .9rem .85rem .9rem; }
+  details.acc .acc-body ul{ margin:0; padding-left:1.1rem; }
+  details.acc .acc-body li{ font-size:.82rem; color:var(--ink-soft); margin-bottom:.3rem; line-height:1.5; }
+
+  .signs-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.9rem; }
+  @media (max-width:520px){ .signs-grid{ grid-template-columns:1fr; } }
+  .signs-box{ border-radius:10px; padding:.8rem .9rem; font-size:.82rem; }
+  .signs-box.good{ background:var(--good-bg); color:#1d6b48; }
+  .signs-box.bad{ background:var(--warn-bg); color:#8a5a06; }
+  .signs-box b{ display:block; margin-bottom:.4rem; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+  .signs-box ul{ margin:0; padding-left:1.1rem; }
+  .signs-box li{ margin-bottom:.3rem; line-height:1.4; }
+
+  /* ---------- Symptom / objection selector ---------- */
+  .symptom-list{ display:flex; flex-direction:column; gap:.5rem; }
+  .symptom-btn{
+    text-align:left; background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:.75rem .9rem;
+    cursor:pointer; font-weight:700; font-size:.87rem; color:var(--ink); transition:all .12s ease;
+  }
+  .symptom-btn:hover{ border-color:var(--accent); }
+  .symptom-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .diag-answer{ margin-top:.9rem; }
+  .diag-answer .row{ display:flex; gap:.6rem; margin-bottom:.6rem; align-items:flex-start; }
+  .diag-answer .tagline{
+    flex:none; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:.25rem .55rem; border-radius:6px; white-space:nowrap; margin-top:.1rem;
+  }
+  .tagline.cause{ background:var(--warn-bg); color:#8a5a06; }
+  .tagline.sol{ background:var(--good-bg); color:#1d6b48; }
+  .diag-answer p{ font-size:.88rem; color:var(--ink); }
+
+  /* ---------- Beginner route list ---------- */
+  .route-list{ display:flex; flex-direction:column; gap:.6rem; }
+  .route-item{
+    display:flex; align-items:center; gap:.8rem; background:var(--bg); border:1.5px solid var(--line);
+    border-radius:10px; padding:.7rem .9rem; cursor:pointer; transition:all .12s ease; text-align:left;
+  }
+  .route-item:hover{ border-color:var(--accent); transform:translateX(2px); }
+  .route-item .num{
+    flex:none; width:1.7rem; height:1.7rem; border-radius:50%; background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:700;
+  }
+  .route-item .txt b{ display:block; font-size:.85rem; color:var(--ink); }
+  .route-item .txt span{ font-size:.74rem; color:var(--ink-soft); }
+  .route-item .arrow{ margin-left:auto; color:var(--accent); font-size:1rem; }
+
+  /* ---------- Calculator ---------- */
+  .calc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+  @media (max-width:480px){ .calc-grid{ grid-template-columns:1fr; } }
+  .field label{ font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); display:block; margin-bottom:.35rem; font-weight:700; }
+  .field input, .field select{
+    width:100%; padding:.6rem .8rem; border:1.5px solid var(--line); border-radius:8px; font-size:1rem;
+    font-family:var(--font-mono); background:var(--card); color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--accent); }
+  .calc-out{
+    margin-top:1.1rem; background:linear-gradient(180deg, #1B6EFF, var(--accent-deep)); color:#fff; border-radius:12px; padding:1.1rem 1.3rem;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .calc-out .box span{ display:block; font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; opacity:.85; font-family:var(--font-mono); }
+  .calc-out .box b{ font-family:var(--font-mono); font-size:1.5rem; color:#fff; font-weight:700; }
+
+  /* ---------- Glossary ---------- */
+  .search-wrap{ position:relative; margin-bottom:1rem; }
+  .search-wrap input{
+    width:100%; padding:.65rem 1rem; border:1.5px solid var(--line); border-radius:8px; font-size:.9rem;
+    font-family:var(--font-body); background:var(--card); color:var(--ink);
+  }
+  .search-wrap input:focus{ outline:none; border-color:var(--accent); }
+  .gterm{ padding:.65rem 0; border-bottom:1px dashed var(--line); }
+  .gterm:last-child{ border-bottom:none; }
+  .gterm b{ color:var(--accent-deep); font-size:.9rem; }
+  .gterm p{ margin-top:.15rem; font-size:.84rem; }
+
+  /* ---------- Access gate ---------- */
+  .app{ display:none; }
+  .app.unlocked{ display:block; }
+  #gate{
+    position:fixed; inset:0; z-index:300; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:1.5rem;
+  }
+  #gate.hide{ display:none; }
+  .gate-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:2.2rem 1.8rem;
+    max-width:380px; width:100%; text-align:center; box-shadow:var(--shadow);
+  }
+  .gate-card .badge{
+    width:56px; height:56px; margin:0 auto 1rem auto; position:relative; font-size:1.5rem;
+    border-radius:38% 62% 55% 45% / 40% 45% 55% 60%;
+    background:radial-gradient(circle at 30% 26%, #6FA0FF 0%, var(--accent) 45%, var(--accent-deep) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+  .gate-card h2{ font-size:1.35rem; }
+  .gate-card p{ margin-top:.5rem; font-size:.87rem; }
+  .gate-card input{
+    width:100%; margin-top:1.3rem; padding:.8rem 1rem; border:1.5px solid var(--line); border-radius:10px;
+    font-family:var(--font-body); font-size:.95rem; background:var(--bg); color:var(--ink); text-align:center;
+  }
+  .gate-card input:focus{ outline:none; border-color:var(--accent); }
+  .gate-card .btn-primary{ width:100%; margin-top:.9rem; }
+  .gate-error{
+    margin-top:.9rem; font-size:.82rem; color:#C0392B; background:#FBE4E1; border-radius:8px;
+    padding:.6rem .8rem; display:none; text-align:left;
+  }
+  .gate-error.show{ display:block; }
+  .gate-help{ margin-top:1.3rem; font-size:.76rem; color:var(--ink-soft); }
+  .gate-help a{ color:var(--accent); font-weight:700; text-decoration:none; }
+
+  footer.app-foot{ text-align:center; padding:2.6rem 0 1.2rem 0; color:var(--ink-soft); font-size:.72rem; font-family:var(--font-mono); letter-spacing:.03em; }
+  footer.app-foot .copyright{
+    margin-top:.6rem; font-size:.64rem; line-height:1.6; color:#98a1aa; letter-spacing:.01em;
+    max-width:38ch; margin-left:auto; margin-right:auto;
+  }
+
+  .wa-float{
+    position:fixed; bottom:1.1rem; right:1.1rem; z-index:100;
+    display:flex; align-items:center; gap:.5rem;
+    background:var(--card); color:#1E8A5F; text-decoration:none; font-weight:700; font-size:.82rem;
+    padding:.7rem 1.05rem; border-radius:999px; border:1.5px solid #BFE3D2;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .wa-float:hover{ transform:translateY(-2px); border-color:#3FBF8C; }
+  .wa-ic{ font-size:1rem; }
+  @media (max-width:520px){
+    .wa-float span:last-child{ display:none; }
+    .wa-float{ padding:.85rem; }
+  }
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div class="badge">💧</div>
+    <h2>Verifica tu acceso</h2>
+    <p>Escribe el mismo correo que usaste al comprar en Hotmart.</p>
+    <form id="gateForm">
+      <input type="email" id="gateEmail" placeholder="tucorreo@ejemplo.com" required autocomplete="email">
+      <button type="submit" id="gateBtn" class="btn btn-primary">Verificar acceso</button>
+    </form>
+    <div class="gate-error" id="gateError"></div>
+    <div class="gate-help">¿No te deja entrar? <a href="https://wa.me/50671526402?text=Hola%2C%20no%20puedo%20verificar%20mi%20acceso%20a%20la%20gu%C3%ADa%20de%20resina" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge">💧</div>
+      <div><b>Resina Lab</b><span>Guía interactiva</span></div>
+    </div>
+    <button id="homeBtn" onclick="goHome()">← Inicio</button>
+  </div>
+
+  <div id="home">
+    <div class="home-head">
+      <h1>¿Qué necesitas resolver hoy?</h1>
+      <p>¿Primera vez aquí? Toca "👋 Empieza aquí" abajo. Si ya conoces la app, ve directo al módulo que necesites.</p>
+    </div>
+    <div class="grid" id="tileGrid"></div>
+  </div>
+
+  <div id="panel"></div>
+
+  <footer class="app-foot">
+    Resina Lab
+    <div class="copyright">© 2026 Resina Lab. Todos los derechos reservados.<br>Prohibida su reproducción, distribución, reventa o uso compartido total o parcial sin autorización expresa.</div>
+  </footer>
+</div>
+
+<a class="wa-float" href="https://wa.me/50671526402?text=Hola%2C%20necesito%20soporte%20con%20la%20gu%C3%ADa%20interactiva%20de%20resina%20%F0%9F%92%A7" target="_blank" rel="noopener">
+  <span class="wa-ic">💬</span><span>¿Necesitas soporte?</span>
+</a>
+
+<script>
+/* ============================================================
+   ACCESO — verificación de correo contra Google Sheets
+   Reemplaza esta URL por la de tu propio Google Apps Script
+   (ver la guía "Configurar-Registro-Resina.md" para el paso a paso)
+============================================================ */
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyWphQBxYFCvvi2vrEIWpS5M4rckM_AGRacbnweDbauvgvczml31R7yUbZQbeYOUJfT2w/exec";
+
+function initGate(){
+  const form = document.getElementById('gateForm');
+  const input = document.getElementById('gateEmail');
+  const btn = document.getElementById('gateBtn');
+  const err = document.getElementById('gateError');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = input.value.trim().toLowerCase();
+    if(!email) return;
+    err.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Verificando…';
+
+    if(SHEET_API_URL.indexOf('PEGA_AQUI') !== -1){
+      err.textContent = 'Esta app todavía no está conectada a la hoja de verificación. Sigue la guía de configuración para activarla.';
+      err.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Verificar acceso';
+      return;
+    }
+
+    try{
+      const res = await fetch(SHEET_API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action:'check', email})
+      });
+      const data = await res.json();
+      if(data.valid){
+        unlockApp();
+      }else{
+        err.textContent = 'No encontramos ese correo entre las compras confirmadas. Revisa que sea exactamente el mismo que usaste en Hotmart.';
+        err.classList.add('show');
+      }
+    }catch(ex){
+      err.textContent = 'No pudimos verificar tu acceso en este momento. Intenta de nuevo o escríbenos por WhatsApp.';
+      err.classList.add('show');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Verificar acceso';
+  });
+}
+function unlockApp(){
+  document.getElementById('gate').classList.add('hide');
+  document.querySelector('.app').classList.add('unlocked');
+}
+initGate();
+
+/* ============================================================
+   PALETTE — pigmentos de resina (vívidos, no pastel)
+============================================================ */
+const palette = {
+  cobalto:   {bg:"#DCE9FF", accent:"#0B5FFF", deep:"#0A3FA8"},
+  magenta:   {bg:"#FBDCF0", accent:"#E0189C", deep:"#9C0E6C"},
+  esmeralda: {bg:"#D6F2E4", accent:"#00A86B", deep:"#01754A"},
+  oro:       {bg:"#FCEBBE", accent:"#E0A100", deep:"#9C6F00"},
+  violeta:   {bg:"#EAD9F7", accent:"#8B2FC9", deep:"#5E1D8A"},
+  turquesa:  {bg:"#D2F1EE", accent:"#00A79A", deep:"#02746A"},
+};
+const HOME_BG = "#F7FAFB";
+
+/* ============================================================
+   DATA
+============================================================ */
+const tiles = [
+  // 1. Orientación
+  {id:"empieza", ic:"👋", title:"Empieza aquí", sub:"Cómo usar esta app", color:"esmeralda"},
+  {id:"quiz", ic:"🧭", title:"¿Qué proyecto deberías hacer?", sub:"Quiz de 4 preguntas", color:"magenta"},
+
+  // 2. Antes de mezclar
+  {id:"seguridad", ic:"🥽", title:"Seguridad esencial", sub:"6 reglas clave", color:"cobalto"},
+  {id:"kit", ic:"✅", title:"Kit de inicio", sub:"Checklist de materiales", color:"violeta"},
+
+  // 3. Materiales y cálculos base
+  {id:"tipos", ic:"🧪", title:"Elige tu resina", sub:"Compara 3 tipos", color:"oro"},
+  {id:"proporcion", ic:"⚖️", title:"Proporción de mezcla", sub:"Resina : catalizador", color:"cobalto"},
+  {id:"cantidad", ic:"🥤", title:"Cantidad para tu molde", sub:"Calcula cuánto necesitas", color:"turquesa"},
+  {id:"pigmentos", ic:"🎨", title:"Pigmentos y efectos", sub:"Qué usar y qué evitar", color:"magenta"},
+
+  // 4. Manos a la obra
+  {id:"proyectos", ic:"💎", title:"Proyectos guiados", sub:"3 piezas paso a paso", color:"esmeralda"},
+  {id:"fotos", ic:"📸", title:"Encapsulado de fotos", sub:"Cómo sellarlas bien", color:"violeta"},
+  {id:"flores", ic:"🌸", title:"Flores naturales", sub:"Secado y encapsulado", color:"turquesa"},
+
+  // 5. Después de vaciar
+  {id:"curado", ic:"⏱️", title:"Tiempo de curado", sub:"Cuándo desmoldar y usar", color:"oro"},
+  {id:"diagnostico", ic:"🛠️", title:"Diagnóstico de fallas", sub:"Soluciona un problema", color:"cobalto"},
+
+  // 6. De hobby a negocio
+  {id:"precio", ic:"💰", title:"Calculadora de precio", sub:"Costo + margen", color:"esmeralda"},
+  {id:"ideas", ic:"🛍️", title:"Ideas de productos", sub:"Qué vender al inicio", color:"magenta"},
+  {id:"ventas", ic:"💬", title:"Objeciones de venta", sub:"Qué responder", color:"violeta"},
+  {id:"plan", ic:"📅", title:"Plan de 30 días", sub:"Tu primer mes", color:"oro"},
+  {id:"diario", ic:"📓", title:"Diario de lotes", sub:"Registra tus mezclas", color:"turquesa"},
+
+  // 7. Referencia rápida
+  {id:"proveedor", ic:"📇", title:"Elegir proveedor", sub:"Qué revisar antes de comprar", color:"cobalto"},
+  {id:"conversion", ic:"🔄", title:"Conversión de unidades", sub:"Gramos, onzas, ml", color:"esmeralda"},
+  {id:"faq", ic:"❓", title:"Preguntas frecuentes", sub:"Dudas comunes", color:"magenta"},
+  {id:"glosario", ic:"📖", title:"Glosario", sub:"Busca un término", color:"turquesa"},
+
+  // 8. Siguiente paso
+  {id:"curso", ic:"🎓", title:"Curso completo", sub:"El siguiente paso", color:"oro"},
+];
+
+const resinTypes = [
+  {ic:"💎", name:"Epóxica cristal", best:"Joyería, posavasos, encapsulados, uso general", notes:["La más versátil y usada por principiantes","Cura transparente y con buen brillo","Baja contracción, ideal para capas gruesas","Requiere proporción exacta (1:1, 2:1 según marca)"]},
+  {ic:"☀️", name:"Resina UV", best:"Detalles pequeños, reparaciones rápidas, capas finas", notes:["Cura en minutos bajo lámpara o luz solar UV","No necesita mezclar dos componentes","Ideal para capas delgadas (máx. 3-5mm)","Más cara por mililitro que la epóxica"]},
+  {ic:"⚠️", name:"Poliéster", best:"Piezas grandes de bajo costo (uso poco común hoy)", notes:["Económica pero con olor muy fuerte","Requiere más ventilación y precaución","Más frágil y amarillea más rápido","Poco recomendada para principiantes"]},
+];
+
+const mixRatios = [
+  {label:"1:1", parts:[1,1]},
+  {label:"2:1", parts:[2,1]},
+  {label:"3:1", parts:[3,1]},
+];
+
+const pigmentGuide = {
+  si:["Mica en polvo (pigmento perlado/metálico)","Tintes de alcohol especiales para resina","Colorantes líquidos o en gel diseñados para epóxica","Purpurina de corte fino apta para resina","Pigmentos opacos en pasta para resina"],
+  no:["Colorantes alimenticios (no se disuelven, quedan grumos)","Acuarelas o témperas (no compatibles, quedan turbias)","Marcadores comunes (la tinta no está diseñada para resina)","Pigmentos con base de agua (afectan el curado)"]
+};
+
+const proyectos = {
+  "posavasos-flores":{
+    label:"Posavasos · Flores", title:"Posavasos con Flores Secas",
+    meta:["Principiante","~30 min activos","24-72h curado"],
+    ingredients:["Molde de silicona circular o cuadrado","Resina epóxica cristal (según proporción de tu molde)","Flores secas pequeñas (ver módulo de flores)","Pinzas para acomodar","Soplete o pistola de calor"],
+    steps:[
+      "Mide y mezcla la resina según la proporción de tu marca (ver módulo Proporción de mezcla).",
+      "Vierte una primera capa fina en el molde y deja curar hasta que esté pegajosa pero firme (2-4 horas).",
+      "Acomoda las flores secas sobre esta capa con las pinzas.",
+      "Vierte una segunda capa que cubra completamente las flores.",
+      "Pasa el soplete rápidamente sobre la superficie para eliminar burbujas.",
+      "Deja curar sin mover durante al menos 24 horas antes de desmoldar.",
+    ],
+    tip:"Sella las flores con una capa de resina o mod podge antes de usarlas: evita que se decoloren dentro de la pieza final."
+  },
+  "joyeria":{
+    label:"Joyería", title:"Dije en Molde de Joyería",
+    meta:["Principiante","~20 min activos","24-48h curado"],
+    ingredients:["Molde de silicona para joyería (dije o arete)","Resina epóxica cristal","Pigmento o mica de tu elección","Argolla o broche metálico","Palillo fino para detalles"],
+    steps:[
+      "Mide y mezcla la resina en la proporción exacta de tu marca.",
+      "Divide la mezcla si vas a usar más de un color.",
+      "Agrega el pigmento y mezcla bien hasta un color uniforme.",
+      "Vierte lentamente en el molde, usando el palillo para guiar el color si haces efectos.",
+      "Elimina burbujas con el soplete a corta distancia.",
+      "Deja curar por completo antes de desmoldar y colocar la argolla o broche.",
+    ],
+    tip:"Las piezas de joyería son pequeñas: cualquier burbuja se nota mucho más. Tómate el doble de tiempo en este paso."
+  },
+  "oceano":{
+    label:"Cuadro Océano", title:"Cuadro con Efecto Océano",
+    meta:["Intermedio","~45 min activos","48-72h curado"],
+    ingredients:["Base de madera o lienzo rígido resellado","Resina epóxica cristal (varias tandas)","Pigmento blanco y azules/turquesas en distintos tonos","Soplete o pistola de calor","Palillo o pajilla para mover la resina"],
+    steps:[
+      "Sella la base con una capa fina de resina transparente y deja curar.",
+      "Mezcla varias tandas pequeñas: blanco, azul claro, azul oscuro y transparente.",
+      "Vierte la resina transparente como base general de la pieza.",
+      "Agrega el azul oscuro en los bordes y ve aclarando hacia el centro.",
+      "Vierte líneas de blanco donde quieras simular espuma de olas.",
+      "Sopla suavemente con el soplete o sorbe con la pajilla para mover el blanco y crear textura de olas.",
+      "Deja curar sin mover durante al menos 48 horas.",
+    ],
+    tip:"Trabaja rápido: la resina empieza a espesar a los 20-30 minutos (su 'pot life'), y el efecto de olas se logra mejor cuando aún está bien líquida."
+  },
+};
+
+const curingStages = [
+  {ic:"👆", name:"Al tacto", tiempo:"~24 horas", detalle:"La superficie ya no se pega al tocarla suavemente, pero la pieza todavía no tiene su dureza final. Evita manipularla."},
+  {ic:"🖐️", name:"Desmoldable", tiempo:"24-48 horas", detalle:"Ya puedes sacar la pieza del molde con cuidado, pero sigue siendo algo flexible y sensible a rayones."},
+  {ic:"💪", name:"Curado completo", tiempo:"72 horas - 7 días", detalle:"La pieza alcanza su dureza y resistencia máxima. Es el momento de lijar, pulir o usarla normalmente."},
+];
+
+const faultsResin = [
+  {p:"Burbujas atrapadas en la pieza", c:"Mezclado muy rápido o vertido desde muy alto, atrapando aire.", s:"Mezcla despacio raspando bien los bordes y el fondo, y pasa un soplete o pistola de calor rápidamente sobre la superficie recién vertida."},
+  {p:"La resina queda pegajosa y no cura", c:"Proporción incorrecta entre resina y catalizador, o mezclado incompleto.", s:"Mide con báscula o vasos graduados con precisión, y mezcla por 3-5 minutos raspando bien las paredes y el fondo del vaso."},
+  {p:"Superficie nublada u opaca", c:"Humedad en el ambiente o en el molde al momento de verter.", s:"Trabaja en un ambiente seco, seca bien los moldes antes de usarlos y evita días muy húmedos si es posible."},
+  {p:"La pieza amarillea con el tiempo", c:"Exposición prolongada a luz solar o UV sin protección.", s:"Usa resina con inhibidor UV para piezas que estarán expuestas al sol, o aplica un barniz protector UV."},
+  {p:"La resina no se despega del molde", c:"Molde no apto para resina, o falta de desmoldante.", s:"Usa siempre moldes de silicona específicos para resina; en moldes rígidos, aplica desmoldante antes de verter."},
+  {p:"Capas separadas o mal adheridas", c:"Se dejó pasar demasiado tiempo entre una capa y la siguiente.", s:"Vierte la siguiente capa mientras la anterior sigue ligeramente pegajosa (dentro de las primeras horas), no después de curado completo."},
+];
+
+const objections = [
+  {q:"\"Está muy caro\"", a:"Valida sin bajar el precio de inmediato: reconoce que entiendes la percepción, y explica en qué se traduce el valor — materiales de calidad, tiempo de curado, y que es una pieza única hecha a mano, no un producto en serie. Puedes ofrecer un tamaño o versión más accesible en vez de bajar el precio de la pieza original."},
+  {q:"\"Lo puedo hacer yo mismo\"", a:"Valida la intención (¡qué bien que le interesa el mundo de la resina!) y ofrece el valor de comprar ahora: no necesita invertir en materiales, esperar tiempos de curado, ni arriesgarse a errores de principiante. Si le interesa aprender, ahí es donde puedes mencionar tu guía o curso."},
+  {q:"\"Lo voy a pensar\"", a:"Es una objeción común cuando no hay urgencia real. Pregunta con curiosidad qué le genera duda específicamente (precio, diseño, tiempo de entrega) para poder resolverlo en el momento, en vez de dejar que la conversación se enfríe."},
+  {q:"\"No sé si me va a gustar\"", a:"Ofrece prueba social: comparte fotos o testimonios de clientas anteriores con piezas similares. Si es posible, ofrece variaciones de color o pequeños ajustes de personalización para que sienta que la pieza es realmente suya."},
+];
+
+const supplierChecklist = [
+  "Tiene ficha técnica disponible (proporción de mezcla, tiempo de curado, pot life)",
+  "Indica si es apta para joyería / contacto con la piel",
+  "Menciona si tiene protección UV o si amarillea con el tiempo",
+  "Tiene reseñas u opiniones verificables de otros compradores",
+  "Ofrece tamaños pequeños para probar antes de comprar en volumen",
+  "Tiene política clara de cambios o garantía por producto defectuoso",
+];
+
+const startKitResin = [
+  "Resina epóxica (parte A y parte B / catalizador)",
+  "2 vasos medidores graduados (uno por componente)",
+  "Palitos o paletas para mezclar",
+  "Guantes de nitrilo (no látex)",
+  "Mascarilla o respirador para vapores orgánicos",
+  "Moldes de silicona",
+  "Soplete de cocina o pistola de calor (para burbujas)",
+  "Balanza digital de precisión",
+  "Superficie de trabajo protegida (mantel de silicona)",
+  "Pigmentos o mica en polvo",
+];
+
+const plan30Resin = [
+  "Semana 1 — Practica la proporción de mezcla con 2-3 piezas pequeñas de prueba",
+  "Semana 1 — Define 2-3 productos iniciales (posavasos, joyería, etc.)",
+  "Semana 2 — Define tu paleta de colores y estilo de marca",
+  "Semana 2 — Toma fotografías de tus primeras piezas con luz natural",
+  "Semana 3 — Calcula tus costos reales y define precios",
+  "Semana 3 — Prepara tu empaque y una ficha de cuidados para el cliente",
+  "Semana 4 — Publica tu catálogo y ofrece un incentivo de lanzamiento",
+  "Semana 4 — Pide a tus primeros clientes una foto o testimonio",
+];
+
+const productIdeas = [
+  "Posavasos individuales o en set",
+  "Joyería: aretes, dijes, anillos, pulseras",
+  "Llaveros personalizados",
+  "Bandejas decorativas",
+  "Cuadros de pared con efectos (océano, geode, galaxia)",
+  "Toppers para pasteles y eventos",
+  "Imanes decorativos",
+  "Portarretratos con encapsulado",
+];
+
+const safetyTipsResin = [
+  {ic:"🌬️", name:"Ventilación", tip:"Trabaja siempre en un espacio ventilado — los vapores de la resina (VOCs) no deben respirarse de forma prolongada."},
+  {ic:"🧤", name:"Guantes de nitrilo", tip:"Usa guantes de nitrilo, no de látex: la resina puede penetrar el látex y llegar a la piel."},
+  {ic:"😷", name:"Protección respiratoria", tip:"Si trabajas seguido o en espacios pequeños, usa mascarilla con filtro para vapores orgánicos, no solo una mascarilla de tela."},
+  {ic:"👀", name:"Protección de ojos", tip:"Usa gafas protectoras, sobre todo al mezclar o usar el soplete cerca de la cara."},
+  {ic:"🩹", name:"Evita el contacto con la piel", tip:"El contacto repetido puede generar sensibilidad o alergia con el tiempo, incluso si al inicio no causa reacción."},
+  {ic:"🚫", name:"Nada de comida cerca", tip:"No comas ni bebas en tu área de trabajo con resina, y lava bien tus manos al terminar."},
+];
+
+const glossaryResin = [
+  {t:"Pot life", d:"El tiempo que tienes para trabajar la resina antes de que empiece a espesar y endurecer."},
+  {t:"Cure time / Tiempo de curado", d:"El tiempo total que necesita la resina para alcanzar su dureza y resistencia máxima."},
+  {t:"VOC", d:"Compuestos orgánicos volátiles: los vapores que libera la resina y que requieren ventilación adecuada."},
+  {t:"Desmoldante", d:"Producto que se aplica en moldes rígidos para que la pieza se despegue con facilidad al curar."},
+  {t:"Encapsulado", d:"Técnica de sellar un objeto (foto, flor, etc.) dentro de una pieza de resina transparente."},
+  {t:"Mica en polvo", d:"Pigmento en polvo con acabado perlado o metálico, uno de los más usados en resina."},
+  {t:"Efecto geode", d:"Técnica que imita el interior de una geoda mineral, usando colores en capas y mica con efecto de interferencia."},
+  {t:"Amarillamiento (yellowing)", d:"Cambio de color hacia tonos amarillos que sufre la resina con el tiempo, sobre todo por exposición UV."},
+  {t:"Reacción exotérmica", d:"El calor que libera la resina al curar, más intenso mientras más grande o gruesa es la pieza."},
+];
+
+const faqsResin = [
+  {q:"¿Por qué mi resina quedó pegajosa después de curar?", a:"Casi siempre es un problema de proporción o mezclado. Revisa que hayas medido con precisión y que hayas mezclado por suficiente tiempo, raspando bien el fondo y las paredes del vaso."},
+  {q:"¿Puedo usar cualquier molde?", a:"No. Usa siempre moldes de silicona específicos para resina; otros materiales pueden pegarse permanentemente o reaccionar con la resina."},
+  {q:"¿Cuánto tiempo tengo para trabajar antes de que endurezca?", a:"Depende de la marca, pero la mayoría de resinas epóxicas tienen un 'pot life' de 20 a 45 minutos antes de empezar a espesar notablemente."},
+  {q:"¿Es tóxica una vez curada?", a:"Una vez completamente curada (72 horas o más), la mayoría de resinas epóxicas de calidad son estables y seguras al tacto. El riesgo está en el proceso de mezclado y curado, no en la pieza terminada."},
+];
+
+const quizQuestionsResin = [
+  {q:"¿Cuál es tu experiencia con resina?", options:[
+    {t:"Nunca he trabajado con resina", score:{"posavasos-flores":2,"joyeria":1,"oceano":0}},
+    {t:"Ya hice una o dos piezas", score:{"posavasos-flores":1,"joyeria":1,"oceano":1}},
+    {t:"Tengo práctica", score:{"posavasos-flores":0,"joyeria":1,"oceano":2}},
+  ]},
+  {q:"¿Qué te gustaría crear primero?", options:[
+    {t:"Algo funcional para la casa", score:{"posavasos-flores":2,"joyeria":0,"oceano":0}},
+    {t:"Una pieza pequeña para usar o regalar", score:{"posavasos-flores":0,"joyeria":2,"oceano":0}},
+    {t:"Una pieza decorativa grande", score:{"posavasos-flores":0,"joyeria":0,"oceano":2}},
+  ]},
+  {q:"¿Cuánto tiempo tienes disponible hoy?", options:[
+    {t:"Menos de 30 minutos activos", score:{"posavasos-flores":1,"joyeria":2,"oceano":0}},
+    {t:"Puedo dedicarle toda la tarde", score:{"posavasos-flores":1,"joyeria":1,"oceano":2}},
+  ]},
+  {q:"¿Qué materiales tienes a mano?", options:[
+    {t:"Un molde simple de silicona", score:{"posavasos-flores":2,"joyeria":0,"oceano":0}},
+    {t:"Molde pequeño de joyería", score:{"posavasos-flores":0,"joyeria":2,"oceano":0}},
+    {t:"Una base rígida (madera/lienzo)", score:{"posavasos-flores":0,"joyeria":0,"oceano":2}},
+  ]},
+];
+
+const temarioResin = [
+  {m:"Módulo 1: Bienvenida", items:["Bienvenida (enlace para el grupo de alumnos en la descripción de la clase)","Qué aprenderás"]},
+  {m:"Módulo 2: Medidas, herramientas y materiales", items:["Medidas de bioseguridad","Herramientas que usaremos","Materiales que usaremos","Proveedores"]},
+  {m:"Módulo 3: Conociendo la resina y los pigmentos", items:["Cuál es la resina ideal para trabajar","Cómo medir la resina","Cómo calcular la cantidad de resina para cada molde","Mezclado correcto de tu resina","Tipos de pigmentos para la resina"]},
+  {m:"Módulo 4: Lo que necesitas saber sobre los moldes", items:["Tipos de moldes","Mantenimiento correcto de tus moldes"]},
+  {m:"Módulo 5: Teoría sobre la resina epóxica", items:["Introducción a la teoría","¿Qué es la resina?","Usos principales, características, ventajas y desventajas de la resina epóxica","Tipos de resinas","La resina epóxica según su proporción","Tiempo de curado de las piezas","Características de la resina ideal que debes comprar para tus proyectos"]},
+  {m:"Módulo 6: Preguntas frecuentes", items:["Introducción","Mi resina quedó pegajosa","Mi pieza no endurece por completo luego de 24 horas","Muchas burbujas en la resina","Piezas opacas o sin brillo","La resina se salió del molde y la pieza quedó irregular","Mi pieza se pegó al molde","La foto se mancha o se daña al encapsular","Las flores cambiaron de color o generan burbujas","Mi resina se calentó demasiado","¿Puedo usar cualquier pigmento o material para la resina?","¿Qué tipo de papel usar para nuestras piezas?","¿Qué impresora debo usar para personalizar?","¿Por qué el glitter se va al fondo de la pieza?","Mi resina queda arrugada al curar","¿Por qué aparecen las burbujas en la resina?","A tener en cuenta..."]},
+  {m:"Módulo 7: Empezamos la práctica", items:["Aretes en moldes","Pulseras y anillos en moldes","Aretes y collar en biseles"]},
+  {m:"Módulo 8: Llaveros en resina", items:["Llavero con encapsulado de flores","Llavero con la técnica de las nubes","Llaveros shaker","Llaveros en acrílico y resina","Llavero en forma de Virgen","Llavero con pintura acrílica y glitter"]},
+  {m:"Módulo 9: Lapiceros, agendas y marcapáginas", items:["Lapicero #1","Lapicero #2","Lapicero recargable con su mismo plástico","Agenda en resina","Cómo diseñar lindas hojas para tus agendas de resina","Marca página #1","Marca página #2"]},
+  {m:"Módulo 10: Artículos personales", items:["Peine de resina","Ganchos para el cabello"]},
+  {m:"Módulo 11: Accesorios para el celular, plaquitas para mascotas y posa vasos", items:["Funda para celular","Pop socket para celular","Plaquitas para mascotas","Posa vasos técnica Petri","Posa vasos técnica tridimensional #1","Posa vasos técnica tridimensional #2"]},
+  {m:"Módulo 12: Costos, precios y tu marca", items:["Cómo sacar los costos y cuánto cobrar por tus accesorios","Cómo crear tu marca","Aprende a diseñar tu logo","Aprende a elaborar tus propias tarjetas de agradecimiento"]},
+  {m:"Módulo 13: Personalización de tus piezas, despedida", items:["Cómo descargar e imprimir las tipografías más lindas para tus piezas y cómo personalizarlas","Qué tipo de papel usamos para la personalización de nuestras piezas","Qué tipo de impresora usar para imprimir y personalizar","Despedida"]},
+  {m:"Módulo 14: Bonos especiales", items:["Masterclass: cuadro con técnica geoda","Masterclass: taza decorada con resina","Masterclass: reloj con técnica de océano","Masterclass: lámpara con encapsulado de fotografía","Guía profesional: pisos en resina epóxica","Masterclass: espejo decorado con resina"]},
+  {m:"Módulo 15: Clases especiales", items:["Recuerdo de recién nacido en resina","Cómo secar tus flores desde casa 1","Cómo secar tus flores desde casa 2","Cómo secar tus flores desde casa 3","Llaveros con técnica foil","Reloj con técnica de tintas en alcohol","Porta vasos con técnica Bloom","Efecto especial para tus impresiones","Porta velas en resina (incluye clase de cómo hacer una vela artesanal)"]},
+  {m:"Módulo 16: Llaveros inteligentes", items:["Qué es una etiqueta NFC","Cómo configurar una etiqueta NFC","Cómo elaborar llaveros y plaquitas inteligentes"]},
+  {m:"Módulo 17: Adornos navideños con resina", items:["Copo de nieve con efecto mármol","Esfera con colgante","Esfera con pintura acrílica","Porta velas navideño","Esferas de navidad en acrílico con encapsulado de fotografía","Posa vasos en madera con técnica de servilleta","Posa vasos en madera con motivo navideño"]},
+  {m:"Módulo 18: Joyería con orquídeas naturales", items:["Cómo secar tus orquídeas en casa","Primera revisión de las orquídeas","Empezamos la elaboración del set de joyería","Proceso de elaboración y presentación final","Elaboración de un segundo set de joyería con resina de inmersión"]},
+];
+
+/* ============================================================
+   APP SHELL / ROUTING
+============================================================ */
+const homeEl = document.getElementById('home');
+const panelEl = document.getElementById('panel');
+const homeBtn = document.getElementById('homeBtn');
+
+function renderTiles(){
+  document.getElementById('tileGrid').innerHTML = tiles.map(t=>{
+    const p = palette[t.color];
+    return `
+    <button class="tile" style="--tile-accent:${p.accent};" onclick="openPanel('${t.id}')">
+      <div class="ic" style="background:radial-gradient(circle at 30% 26%, ${p.accent}CC, ${p.accent} 55%, ${p.deep} 100%); color:#fff;">${t.ic}</div>
+      <b>${t.title}</b>
+      <small>${t.sub}</small>
+    </button>`;
+  }).join('');
+}
+renderTiles();
+
+function setTheme(colorKey){
+  const p = palette[colorKey] || palette.cobalto;
+  const root = document.documentElement.style;
+  root.setProperty('--accent', p.accent);
+  root.setProperty('--accent-deep', p.deep);
+  root.setProperty('--accent-bg', p.bg);
+}
+
+function goHome(){
+  homeEl.classList.remove('hide');
+  panelEl.classList.remove('show');
+  panelEl.innerHTML = '';
+  homeBtn.classList.remove('show');
+  document.documentElement.style.setProperty('--bg', HOME_BG);
+  setTheme('cobalto');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function openPanel(id){
+  const tile = tiles.find(t=>t.id===id);
+  setTheme(tile ? tile.color : 'cobalto');
+  document.documentElement.style.setProperty('--bg', tile ? palette[tile.color].bg : HOME_BG);
+  homeEl.classList.add('hide');
+  panelEl.classList.add('show');
+  homeBtn.classList.add('show');
+  panelEl.innerHTML = panelBuilders[id]();
+  wireAfterRender(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function panelHeader(eyebrow, title, sub){
+  return `<div class="panel-head"><div class="eyebrow">${eyebrow}</div><h2>${title}</h2><p>${sub}</p></div>`;
+}
+
+/* ============================================================
+   PANEL BUILDERS
+============================================================ */
+const panelBuilders = {
+
+  empieza(){
+    return panelHeader('Bienvenida','¡Hola! Empecemos por aquí', 'Esta app no se lee de corrido como un libro: es una caja de herramientas. Toca lo que necesites, cuando lo necesites.') + `
+      <div class="card">
+        <h3 style="font-size:1.05rem;">¿Cómo funciona esta app?</h3>
+        <p style="margin-top:.5rem; font-size:.87rem;">Desde el inicio ves módulos como tarjetas. Tocas una, se abre esa herramienta sola, y con "← Inicio" (arriba) vuelves a ver todas.</p>
+      </div>
+      <div class="card" style="margin-top:.9rem;">
+        <h3 style="font-size:1.05rem;">Lo básico antes de empezar</h3>
+        <ul style="margin-top:.6rem; padding-left:1.1rem;">
+          <li style="font-size:.85rem; color:var(--ink-soft); margin-bottom:.4rem;">La resina requiere medir con precisión: la proporción entre resina y catalizador no es opcional.</li>
+          <li style="font-size:.85rem; color:var(--ink-soft); margin-bottom:.4rem;">Trabaja siempre en un espacio ventilado — revisa seguridad antes de mezclar cualquier cosa.</li>
+          <li style="font-size:.85rem; color:var(--ink-soft); margin-bottom:.4rem;">Tu primera pieza puede tener burbujas o imperfecciones — es normal, cada mezcla te enseña algo.</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:.9rem;">
+        <h3 style="font-size:1.05rem; margin-bottom:.7rem;">Tu ruta sugerida como principiante</h3>
+        <div class="route-list" id="routeList"></div>
+      </div>`;
+  },
+
+  quiz(){
+    return panelHeader('Módulo','¿Qué proyecto deberías hacer?','Responde 4 preguntas rápidas y te recomendamos un proyecto.') + `
+      <div class="card" id="quizCard"></div>`;
+  },
+
+  seguridad(){
+    return panelHeader('Módulo','Seguridad esencial','Toca cada regla para ver el porqué.') + `
+      <div class="chips" id="safetyChips"></div>
+      <div id="safetyResult"></div>`;
+  },
+
+  kit(){
+    return panelHeader('Módulo','Kit de inicio','Marca lo que ya tienes en tu espacio de trabajo.') + `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:.5rem;">
+          <b style="font-size:.85rem; color:var(--accent-deep);">Materiales esenciales</b>
+          <span class="count-pill" id="kitCount">0/${startKitResin.length}</span>
+        </div>
+        <div id="kitList"></div>
+        <div class="bar-track"><div class="bar-fill" id="kitBar"></div></div>
+      </div>`;
+  },
+
+  tipos(){
+    return panelHeader('Módulo','Elige tu resina','Toca un tipo para ver sus fortalezas y en qué usarlo.') + `
+      <div class="chips" id="typeChips"></div>
+      <div id="typeResult"></div>`;
+  },
+
+  proporcion(){
+    return panelHeader('Módulo','Proporción de mezcla','La decisión más importante: resina y catalizador deben medirse con precisión.') + `
+      <div class="chips" id="ratioChips"></div>
+      <div class="card">
+        <div class="field"><label>Cantidad total que quieres preparar (g)</label><input type="number" id="inTotalMix" value="100" step="5" min="0"></div>
+        <div id="ratioResult" style="margin-top:1rem;"></div>
+      </div>
+      <div class="tip-box">💡 Siempre verifica la proporción exacta de tu marca de resina — algunas son 1:1, otras 2:1 o 3:1. Usar la proporción equivocada es la causa #1 de piezas que no curan.</div>`;
+  },
+
+  cantidad(){
+    return panelHeader('Módulo','Cantidad para tu molde','Calcula cuánta resina mezclada necesitas, con dos métodos.') + `
+      <div class="chips" id="methodChips">
+        <div class="chip active" data-m="agua">💧 Método del agua</div>
+        <div class="chip" data-m="geo">📐 Método geométrico</div>
+      </div>
+      <div class="card" id="methodAgua">
+        <p style="font-size:.85rem; margin-bottom:.7rem;">Llena tu molde con agua hasta la altura que planeas verter, y pésala (1 mL de agua = 1 g). Ese peso es tu punto de partida.</p>
+        <div class="field"><label>Peso del agua (g)</label><input type="number" id="inWater" value="80" step="1" min="0"></div>
+        <div id="aguaResult"></div>
+      </div>
+      <div class="card" id="methodGeo" style="margin-top:.9rem; display:none;">
+        <p style="font-size:.85rem; margin-bottom:.7rem;">Para moldes cilíndricos o rectangulares simples: mide el diámetro/ancho y la altura de llenado.</p>
+        <div class="calc-grid">
+          <div class="field"><label>Diámetro interno (cm)</label><input type="number" id="inDiam" value="9" step="0.1" min="0"></div>
+          <div class="field"><label>Altura de llenado (cm)</label><input type="number" id="inHeight" value="1" step="0.1" min="0"></div>
+        </div>
+        <div id="geoResult" style="margin-top:1rem;"></div>
+      </div>
+      <div class="tip-box" style="margin-top:.9rem;">💡 La resina epóxica pesa aproximadamente 1.1 g por mL. Una vez sepas cuántos gramos necesitas en total, ve al módulo "Proporción de mezcla" para saber cuánto es Parte A y cuánto Parte B.</div>`;
+  },
+
+  pigmentos(){
+    return panelHeader('Módulo','Pigmentos y efectos','Qué usar y qué evitar para lograr piezas transparentes y bien curadas.') + `
+      <div class="card">
+        <h4 style="font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--good); margin-bottom:.6rem;">✔ Sí puedes usar</h4>
+        <ul style="padding-left:1.1rem;">${pigmentGuide.si.map(i=>`<li style="font-size:.86rem; color:var(--ink-soft); margin-bottom:.4rem;">${i}</li>`).join('')}</ul>
+      </div>
+      <div class="card" style="margin-top:.9rem;">
+        <h4 style="font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:#C0392B; margin-bottom:.6rem;">✕ Evita usar</h4>
+        <ul style="padding-left:1.1rem;">${pigmentGuide.no.map(i=>`<li style="font-size:.86rem; color:var(--ink-soft); margin-bottom:.4rem;">${i}</li>`).join('')}</ul>
+      </div>
+      <div class="tip-box" style="margin-top:.9rem;">💡 Para efecto geode: usa mica con efecto de interferencia en capas. Para efecto océano: blanco + azules + movimiento con soplete o pajilla.</div>`;
+  },
+
+  proyectos(){
+    return panelHeader('Módulo','Proyectos guiados','Elige una pieza para ver ingredientes y pasos.') + `
+      <div class="chips" id="projectTabs"></div>
+      <div id="projectCard"></div>`;
+  },
+
+  fotos(){
+    return panelHeader('Módulo','Encapsulado de fotos','Cómo sellar una foto sin que se transparente o se dañe.') + `
+      <div class="card">
+        <div class="steps" id="fotoSteps"></div>
+      </div>
+      <div class="tip-box">💡 Las fotos impresas en impresoras de inyección de tinta son más propensas a correrse — el sellador previo es indispensable en ese caso.</div>`;
+  },
+
+  flores(){
+    return panelHeader('Módulo','Secado y encapsulado de flores naturales','Dos métodos de secado, y cómo evitar que se decoloren dentro de la pieza.') + `
+      <div class="chips" id="florChips">
+        <div class="chip active" data-m="silica">Gel de sílice</div>
+        <div class="chip" data-m="prensado">Prensado tradicional</div>
+      </div>
+      <div id="florResult"></div>
+      <div class="tip-box" style="margin-top:.9rem;">💡 Evita flores muy jugosas (como rosas muy abiertas o flores con mucha agua): tienden a pudrirse dentro de la resina si no están completamente secas.</div>`;
+  },
+
+  curado(){
+    return panelHeader('Módulo','Tiempo de curado','No confundas "seca al tacto" con "curado completo".') + `
+      <div class="chips" id="curadoChips"></div>
+      <div id="curadoResult"></div>`;
+  },
+
+  diagnostico(){
+    return panelHeader('Módulo','Diagnóstico de fallas','Selecciona el problema que estás viendo en tu pieza.') + `
+      <div class="symptom-list" id="symptomList"></div>
+      <div id="diagResult"></div>`;
+  },
+
+  precio(){
+    return panelHeader('Módulo','Calculadora de precio','Precio = (costo + tiempo) ÷ (1 − margen deseado).') + `
+      <div class="card">
+        <div class="calc-grid">
+          <div class="field"><label>Costo de materiales ($)</label><input type="number" id="inCost" value="6" step="0.10"></div>
+          <div class="field"><label>Valor de tu tiempo ($)</label><input type="number" id="inTime" value="2" step="0.10"></div>
+          <div class="field"><label>Margen deseado (%)</label><input type="number" id="inMargin" value="40" step="5"></div>
+          <div class="field"><label>Unidades por lote</label><input type="number" id="inUnits" value="1" min="1" step="1"></div>
+        </div>
+        <div class="calc-out">
+          <div class="box"><span>Precio sugerido</span><b id="outPrice">$—</b></div>
+          <div class="box"><span>Ganancia / unidad</span><b id="outProfit">$—</b></div>
+        </div>
+      </div>`;
+  },
+
+  ideas(){
+    return panelHeader('Módulo','Ideas de productos para vender','Qué ofrecer al inicio, sin necesitar un catálogo enorme.') + `
+      <div class="card"><ul style="padding-left:1.1rem;">${productIdeas.map(i=>`<li style="font-size:.87rem; color:var(--ink-soft); margin-bottom:.45rem;">${i}</li>`).join('')}</ul></div>`;
+  },
+
+  ventas(){
+    return panelHeader('Módulo','Objeciones de venta','Selecciona la objeción que más escuchas.') + `
+      <div class="symptom-list" id="objList"></div>
+      <div id="objResult"></div>`;
+  },
+
+  plan(){
+    return panelHeader('Módulo','Plan de 30 días','Tu ruta simple para el primer mes.') + `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:.5rem;">
+          <b style="font-size:.85rem; color:var(--accent-deep);">Checklist de lanzamiento</b>
+          <span class="count-pill" id="planCount">0/${plan30Resin.length}</span>
+        </div>
+        <div id="planList"></div>
+        <div class="bar-track"><div class="bar-fill" id="planBar"></div></div>
+      </div>`;
+  },
+
+  diario(){
+    return panelHeader('Módulo','Diario de lotes','Registra cada mezcla para repetir tus aciertos.') + `
+      <div class="card">
+        <div class="calc-grid">
+          <div class="field"><label>Tipo de resina</label><input type="text" id="dResina" placeholder="Ej: Epóxica cristal"></div>
+          <div class="field"><label>Proporción usada</label><input type="text" id="dProp" placeholder="Ej: 2:1"></div>
+        </div>
+        <div class="field" style="margin-top:.7rem;"><label>Notas del resultado</label><input type="text" id="dNotas" placeholder="Ej: sin burbujas, curó parejo"></div>
+        <button id="dAdd" class="btn" style="margin-top:.9rem;">+ Agregar entrada</button>
+      </div>
+      <div id="diarioList" style="margin-top:1rem;"></div>
+      <button id="dExport" class="btn" style="margin-top:.9rem; background:var(--card); color:var(--ink); border:1.5px solid var(--line);">⬇ Descargar registro (.txt)</button>
+      <div class="tip-box" style="margin-top:.9rem;">💡 Este registro vive solo en esta sesión del navegador — descárgalo antes de cerrar la app para no perderlo.</div>`;
+  },
+
+  proveedor(){
+    return panelHeader('Módulo','Cómo elegir un proveedor','Revisa esta lista antes de comprar resina en volumen.') + `
+      <div class="card">
+        <div id="supplierList"></div>
+      </div>`;
+  },
+
+  conversion(){
+    return panelHeader('Módulo','Conversión de unidades','Elige la conversión y escribe el valor.') + `
+      <div class="chips" id="convChips"></div>
+      <div class="card">
+        <div class="field"><label id="convLabel">Valor</label><input type="number" id="convInput" value="100" step="0.1"></div>
+        <div class="calc-out" style="margin-top:1rem;">
+          <div class="box"><span>Resultado</span><b id="convOut">—</b></div>
+        </div>
+      </div>`;
+  },
+
+  faq(){
+    return panelHeader('Módulo','Preguntas frecuentes','Selecciona una pregunta para ver la respuesta.') + `
+      <div class="symptom-list" id="faqList"></div>
+      <div id="faqResult"></div>`;
+  },
+
+  glosario(){
+    return panelHeader('Módulo','Glosario','Busca un término técnico de resina.') + `
+      <div class="search-wrap"><input id="glossSearch" placeholder="Ej: pot life, VOC, desmoldante…"></div>
+      <div class="card" id="glossList"></div>`;
+  },
+
+  curso(){
+    return panelHeader('Siguiente paso','Curso Completo de Resina','Esta guía es solo el comienzo. El Curso Completo "Diseña y Crea con Resina" con la instructora Yuly Rivas te lleva de cero a un catálogo profesional, con 18 módulos, práctica guiada y bonos.') + `
+      <div class="card">
+        <h3 style="font-size:1.15rem;">Temario completo (18 módulos)</h3>
+        <p style="margin-top:.5rem; font-size:.88rem;">Toca el botón para ver todo lo que incluye, módulo por módulo.</p>
+        <button id="toggleTemario" class="btn" style="margin-top:.8rem;">📋 Ver temario completo</button>
+        <div id="temarioBox" style="display:none; margin-top:1rem;"></div>
+      </div>
+      <div class="card" style="margin-top:.9rem; text-align:center;">
+        <h3 style="font-size:1.3rem;">Adquiere el Curso Completo</h3>
+        <p style="margin-top:.4rem;">Acceso completo a todas las clases y bonos.</p>
+        <a id="hotmartBtn" href="#" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:1rem;">
+          💎 Adquiérelo aquí
+        </a>
+        <p style="margin-top:.8rem; font-size:.72rem; color:var(--ink-soft);">Instructora: Yuly Rivas</p>
+      </div>`;
+  },
+};
+
+/* ============================================================
+   WIRING
+============================================================ */
+function wireAfterRender(id){
+  if(id==='empieza') wireEmpieza();
+  if(id==='quiz') wireQuiz();
+  if(id==='seguridad') wireChips('safetyChips', safetyTipsResin, 'name', (item)=>renderResultCard('safetyResult', item.ic, item.name, item.tip, []));
+  if(id==='kit') wireChecklistPanel('kitList','kitBar','kitCount', startKitResin);
+  if(id==='tipos') wireChips('typeChips', resinTypes, 'name', (item)=>renderResultCard('typeResult', item.ic, item.name, item.best, [], item.notes));
+  if(id==='proporcion') wireProporcion();
+  if(id==='cantidad') wireCantidad();
+  if(id==='proyectos') wireProyectos();
+  if(id==='fotos') wireFotos();
+  if(id==='flores') wireFlores();
+  if(id==='curado') wireCurado();
+  if(id==='diagnostico') wireDiagnostico();
+  if(id==='precio') wirePrecio();
+  if(id==='ventas') wireVentas();
+  if(id==='plan') wireChecklistPanel('planList','planBar','planCount', plan30Resin);
+  if(id==='diario') wireDiario();
+  if(id==='proveedor') wireProveedor();
+  if(id==='conversion') wireConversion();
+  if(id==='faq') wireFaq();
+  if(id==='glosario') wireGlossary();
+  if(id==='curso') wireCurso();
+}
+
+/* Empieza aquí — ruta sugerida */
+function wireEmpieza(){
+  const route = [
+    {id:"seguridad", ic:"🥽", t:"Lee las 6 reglas de seguridad", s:"Antes de mezclar nada"},
+    {id:"kit", ic:"✅", t:"Revisa qué materiales tienes", s:"Kit de inicio"},
+    {id:"proporcion", ic:"⚖️", t:"Entiende la proporción de mezcla", s:"Resina : catalizador"},
+    {id:"quiz", ic:"🧭", t:"Descubre qué proyecto hacer primero", s:"Quiz de 4 preguntas"},
+    {id:"proyectos", ic:"💎", t:"Sigue el proyecto paso a paso", s:"Proyectos guiados"},
+  ];
+  document.getElementById('routeList').innerHTML = route.map((r,i)=>`
+    <button class="route-item" data-id="${r.id}">
+      <div class="num">${i+1}</div>
+      <div class="txt"><b>${r.ic} ${r.t}</b><span>${r.s}</span></div>
+      <div class="arrow">→</div>
+    </button>`).join('');
+  document.querySelectorAll('.route-item').forEach(btn=>
+    btn.addEventListener('click', ()=> openPanel(btn.dataset.id)));
+}
+
+/* Generic chip selector */
+function wireChips(containerId, items, labelKey, onSelect){
+  const el = document.getElementById(containerId);
+  el.innerHTML = items.map((it,i)=>`<div class="chip" data-i="${i}">${it.ic||''} ${it[labelKey]}</div>`).join('');
+  const chips = el.querySelectorAll('.chip');
+  chips.forEach(c=> c.addEventListener('click', ()=>{
+    chips.forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    onSelect(items[parseInt(c.dataset.i)]);
+  }));
+  chips[0].click();
+}
+function renderResultCard(targetId, ic, title, lead, tags=[], notes=[]){
+  document.getElementById(targetId).innerHTML = `
+    <div class="result-card">
+      <div style="font-size:1.6rem;">${ic}</div>
+      <h3>${title}</h3>
+      <p style="margin-top:.3rem;">${lead}</p>
+      ${tags.length?`<div class="result-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</div>`:''}
+      ${notes.length?`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`:''}
+    </div>`;
+}
+
+/* Checklist panels */
+function wireChecklistPanel(listId, barId, countId, items){
+  const listEl = document.getElementById(listId);
+  listEl.innerHTML = items.map(i=>`<label class="check-item"><input type="checkbox"><span>${i}</span></label>`).join('');
+  const cbs = listEl.querySelectorAll('.check-item');
+  const bar = document.getElementById(barId);
+  const count = document.getElementById(countId);
+  function update(){
+    const done = listEl.querySelectorAll('.check-item.done').length;
+    bar.style.width = (done/items.length*100)+'%';
+    count.textContent = done+'/'+items.length;
+  }
+  cbs.forEach(it=>{
+    const cb = it.querySelector('input');
+    cb.addEventListener('change', ()=>{ it.classList.toggle('done', cb.checked); update(); });
+  });
+  update();
+}
+
+/* Quiz */
+function wireQuiz(){
+  let step = 0;
+  const totals = {};
+  Object.keys(proyectos).forEach(k=> totals[k]=0);
+  function renderQuestion(){
+    const card = document.getElementById('quizCard');
+    const q = quizQuestionsResin[step];
+    card.innerHTML = `
+      <div style="font-size:.72rem; color:var(--ink-soft); margin-bottom:.4rem;" class="mono">Pregunta ${step+1} de ${quizQuestionsResin.length}</div>
+      <h3 style="font-size:1.05rem; margin-bottom:.9rem;">${q.q}</h3>
+      <div class="symptom-list">${q.options.map((o,i)=>`<button class="symptom-btn" data-i="${i}">${o.t}</button>`).join('')}</div>`;
+    card.querySelectorAll('.symptom-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+      const opt = q.options[parseInt(btn.dataset.i)];
+      Object.keys(opt.score).forEach(k=> totals[k]=(totals[k]||0)+opt.score[k]);
+      step++;
+      if(step<quizQuestionsResin.length) renderQuestion(); else renderResult();
+    }));
+  }
+  function renderResult(){
+    let bestKey = Object.keys(totals)[0];
+    Object.keys(totals).forEach(k=>{ if(totals[k]>totals[bestKey]) bestKey=k; });
+    const r = proyectos[bestKey];
+    document.getElementById('quizCard').innerHTML = `
+      <div style="text-align:center;">
+        <div style="font-size:1.8rem;">💎</div>
+        <h3 style="font-size:1.2rem; margin-top:.4rem;">Te recomendamos: ${r.title}</h3>
+        <p style="margin-top:.5rem;">Según tus respuestas, este proyecto se ajusta mejor a tu nivel y a lo que tienes a mano.</p>
+        <button id="quizGo" class="btn btn-primary" style="margin-top:1rem;">Ver proyecto →</button>
+      </div>`;
+    document.getElementById('quizGo').addEventListener('click', ()=> openPanel('proyectos'));
+  }
+  renderQuestion();
+}
+
+/* Proporción de mezcla */
+function wireProporcion(){
+  const chipsEl = document.getElementById('ratioChips');
+  chipsEl.innerHTML = mixRatios.map((r,i)=>`<div class="chip ${i===0?'active':''}" data-i="${i}">${r.label}</div>`).join('');
+  const chips = chipsEl.querySelectorAll('.chip');
+  const input = document.getElementById('inTotalMix');
+  let current = mixRatios[0];
+  function calc(){
+    const total = parseFloat(input.value)||0;
+    const sum = current.parts[0]+current.parts[1];
+    const partA = total*(current.parts[0]/sum);
+    const partB = total*(current.parts[1]/sum);
+    document.getElementById('ratioResult').innerHTML = `
+      <div class="result-card">
+        <h3 style="font-size:1.1rem;">Proporción ${current.label}</h3>
+        <div class="result-tags" style="margin-top:.8rem;">
+          <span class="mono">Parte A (resina): ${partA.toFixed(1)} g</span>
+          <span class="mono">Parte B (catalizador): ${partB.toFixed(1)} g</span>
+        </div>
+      </div>`;
+  }
+  chips.forEach(c=> c.addEventListener('click', ()=>{
+    chips.forEach(x=>x.classList.remove('active')); c.classList.add('active');
+    current = mixRatios[parseInt(c.dataset.i)]; calc();
+  }));
+  input.addEventListener('input', calc);
+  calc();
+}
+
+/* Cantidad para tu molde */
+function wireCantidad(){
+  const RESIN_DENSITY = 1.1;
+  const methodChips = document.getElementById('methodChips').querySelectorAll('.chip');
+  const aguaBox = document.getElementById('methodAgua');
+  const geoBox = document.getElementById('methodGeo');
+  methodChips.forEach(c=> c.addEventListener('click', ()=>{
+    methodChips.forEach(x=>x.classList.remove('active')); c.classList.add('active');
+    const m = c.dataset.m;
+    aguaBox.style.display = m==='agua' ? 'block' : 'none';
+    geoBox.style.display = m==='geo' ? 'block' : 'none';
+  }));
+  function resultHTML(grams, sub){
+    return `<div class="result-card" style="margin-top:1rem;">
+      <div style="font-size:1.5rem;">🥤</div>
+      <h3 class="mono" style="font-size:1.3rem;">${grams.toFixed(0)} g de resina mezclada</h3>
+      <p style="margin-top:.3rem;">${sub}</p>
+    </div>`;
+  }
+  function calcAgua(){
+    const water = parseFloat(document.getElementById('inWater').value)||0;
+    const grams = water*RESIN_DENSITY;
+    document.getElementById('aguaResult').innerHTML = resultHTML(grams, `Basado en ${water} g de agua medidos en tu molde.`);
+  }
+  function calcGeo(){
+    const d = parseFloat(document.getElementById('inDiam').value)||0;
+    const h = parseFloat(document.getElementById('inHeight').value)||0;
+    const r = d/2;
+    const volume = Math.PI*r*r*h;
+    const grams = volume*RESIN_DENSITY;
+    document.getElementById('geoResult').innerHTML = resultHTML(grams, `Volumen calculado: ${volume.toFixed(0)} mL (diámetro ${d} cm × altura ${h} cm).`);
+  }
+  document.getElementById('inWater').addEventListener('input', calcAgua);
+  document.getElementById('inDiam').addEventListener('input', calcGeo);
+  document.getElementById('inHeight').addEventListener('input', calcGeo);
+  calcAgua(); calcGeo();
+}
+
+/* Proyectos guiados */
+function wireProyectos(){
+  const chipsEl = document.getElementById('projectTabs');
+  const keys = Object.keys(proyectos);
+  chipsEl.innerHTML = keys.map(k=>`<div class="chip" data-k="${k}">${proyectos[k].label}</div>`).join('');
+  const chips = chipsEl.querySelectorAll('.chip');
+  function show(key){
+    chips.forEach(c=>c.classList.toggle('active', c.dataset.k===key));
+    const r = proyectos[key];
+    document.getElementById('projectCard').innerHTML = `
+      <div class="card">
+        <h3 style="font-size:1.2rem;">${r.title}</h3>
+        <div class="recipe-meta">${r.meta.map(m=>`<span>${m}</span>`).join('')}</div>
+        <div class="cols2">
+          <div><h4>Ingredientes</h4><div id="projIng"></div></div>
+          <div><h4>Paso a paso</h4><div class="steps" id="projSteps">${r.steps.map(s=>`<div class="step"><span>${s}</span></div>`).join('')}</div></div>
+        </div>
+        <div class="tip-box">💡 ${r.tip}</div>
+      </div>`;
+    document.getElementById('projIng').innerHTML = r.ingredients.map(i=>`<label class="check-item"><input type="checkbox"><span>${i}</span></label>`).join('');
+    document.querySelectorAll('#projIng .check-item').forEach(it=>{
+      const cb = it.querySelector('input');
+      cb.addEventListener('change', ()=> it.classList.toggle('done', cb.checked));
+    });
+    document.querySelectorAll('#projSteps .step').forEach(st=> st.addEventListener('click', ()=> st.classList.toggle('done')));
+  }
+  chips.forEach(c=> c.addEventListener('click', ()=> show(c.dataset.k)));
+  show(keys[0]);
+}
+
+/* Fotos */
+function wireFotos(){
+  const steps = [
+    "Sella la foto primero con una capa protectora (mod podge o spray sellador) antes de encapsularla.",
+    "Deja secar el sellador por completo (sigue las instrucciones del producto, usualmente 20-30 min).",
+    "Coloca la foto en el molde o base, boca arriba.",
+    "Vierte una primera capa fina de resina sobre la foto y deja curar parcialmente (2-4 horas).",
+    "Vierte la capa final que cubra por completo la foto.",
+    "Elimina burbujas con el soplete y deja curar sin mover durante 24-48 horas.",
+  ];
+  document.getElementById('fotoSteps').innerHTML = steps.map(s=>`<div class="step"><span>${s}</span></div>`).join('');
+  document.querySelectorAll('#fotoSteps .step').forEach(st=> st.addEventListener('click', ()=> st.classList.toggle('done')));
+}
+
+/* Flores */
+function wireFlores(){
+  const chips = document.querySelectorAll('#florChips .chip');
+  const data = {
+    silica:{t:"Gel de sílice", d:"Entierra la flor completamente en gel de sílice dentro de un recipiente hermético, entre 3 y 7 días según el tamaño. Conserva mejor la forma y el color original de la flor."},
+    prensado:{t:"Prensado tradicional", d:"Coloca la flor entre papel absorbente y un peso (libros, prensa de flores), entre 1 y 2 semanas. El resultado es más plano, ideal para diseños 2D."},
+  };
+  function show(key){
+    chips.forEach(c=>c.classList.toggle('active', c.dataset.m===key));
+    document.getElementById('florResult').innerHTML = `
+      <div class="result-card" style="margin-top:1rem;">
+        <h3 style="font-size:1.1rem;">${data[key].t}</h3>
+        <p style="margin-top:.4rem;">${data[key].d}</p>
+      </div>`;
+  }
+  chips.forEach(c=> c.addEventListener('click', ()=> show(c.dataset.m)));
+  show('silica');
+}
+
+/* Curado */
+function wireCurado(){
+  const chipsEl = document.getElementById('curadoChips');
+  chipsEl.innerHTML = curingStages.map((c,i)=>`<div class="chip ${i===0?'active':''}" data-i="${i}">${c.ic} ${c.name}</div>`).join('');
+  const chips = chipsEl.querySelectorAll('.chip');
+  function show(i){
+    chips.forEach(c=>c.classList.toggle('active', parseInt(c.dataset.i)===i));
+    const c = curingStages[i];
+    document.getElementById('curadoResult').innerHTML = `
+      <div class="result-card">
+        <h3 style="font-size:1.1rem;">${c.ic} ${c.name}: <span class="mono">${c.tiempo}</span></h3>
+        <p style="margin-top:.4rem;">${c.detalle}</p>
+      </div>`;
+  }
+  chips.forEach(c=> c.addEventListener('click', ()=> show(parseInt(c.dataset.i))));
+  show(0);
+}
+
+/* Diagnóstico */
+function wireDiagnostico(){
+  const list = document.getElementById('symptomList');
+  list.innerHTML = faultsResin.map((f,i)=>`<button class="symptom-btn" data-i="${i}">${f.p}</button>`).join('');
+  const btns = list.querySelectorAll('.symptom-btn');
+  function show(i){
+    btns.forEach(b=>b.classList.toggle('active', parseInt(b.dataset.i)===i));
+    const f = faultsResin[i];
+    document.getElementById('diagResult').innerHTML = `
+      <div class="result-card diag-answer">
+        <div class="row"><span class="tagline cause">Causa</span><p>${f.c}</p></div>
+        <div class="row"><span class="tagline sol">Solución</span><p>${f.s}</p></div>
+      </div>`;
+  }
+  btns.forEach(b=> b.addEventListener('click', ()=> show(parseInt(b.dataset.i))));
+  show(0);
+}
+
+/* Precio */
+function wirePrecio(){
+  function calc(){
+    const cost = parseFloat(document.getElementById('inCost').value)||0;
+    const time = parseFloat(document.getElementById('inTime').value)||0;
+    const margin = (parseFloat(document.getElementById('inMargin').value)||0)/100;
+    const units = Math.max(1, parseInt(document.getElementById('inUnits').value)||1);
+    const base = (cost+time)/units;
+    const price = margin<1 ? base/(1-margin) : base;
+    document.getElementById('outPrice').textContent = '$'+price.toFixed(2);
+    document.getElementById('outProfit').textContent = '$'+(price-base).toFixed(2);
+  }
+  ['inCost','inTime','inMargin','inUnits'].forEach(id=> document.getElementById(id).addEventListener('input', calc));
+  calc();
+}
+
+/* Ventas / objeciones */
+function wireVentas(){
+  const list = document.getElementById('objList');
+  list.innerHTML = objections.map((f,i)=>`<button class="symptom-btn" data-i="${i}">${f.q}</button>`).join('');
+  const btns = list.querySelectorAll('.symptom-btn');
+  function show(i){
+    btns.forEach(b=>b.classList.toggle('active', parseInt(b.dataset.i)===i));
+    document.getElementById('objResult').innerHTML = `<div class="result-card"><p>${objections[i].a}</p></div>`;
+  }
+  btns.forEach(b=> b.addEventListener('click', ()=> show(parseInt(b.dataset.i))));
+  show(0);
+}
+
+/* Diario de lotes */
+let diarioEntriesResin = [];
+/* Descarga de texto robusta: funciona incluso si el navegador bloquea el clic automático */
+function downloadText(filename, text){
+  try{
+    const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 1500);
+  }catch(err){
+    const w = window.open('', '_blank');
+    if(w){
+      w.document.write('<pre style="white-space:pre-wrap; word-break:break-word; font-family:monospace; padding:1.5rem; line-height:1.6;">'+text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</pre>');
+      w.document.title = filename;
+    }else{
+      alert('Tu navegador bloqueó la descarga. Copia este texto manualmente:\n\n'+text);
+    }
+  }
+}
+
+function wireDiario(){
+  function render(){
+    const list = document.getElementById('diarioList');
+    if(!diarioEntriesResin.length){
+      list.innerHTML = `<p style="font-size:.85rem; color:var(--ink-soft);">Aún no tienes entradas registradas.</p>`;
+      return;
+    }
+    list.innerHTML = diarioEntriesResin.map((e,i)=>`
+      <div class="card" style="display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; margin-top:.6rem;">
+        <div>
+          <b style="font-size:.85rem; color:var(--accent-deep);">${e.fecha} · ${e.resina||'—'}</b>
+          <p style="margin-top:.2rem; font-size:.82rem;">Proporción: ${e.prop||'—'} · ${e.notas||'Sin notas'}</p>
+        </div>
+        <button data-i="${i}" class="del-entry" style="background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:1rem;">✕</button>
+      </div>`).join('');
+    list.querySelectorAll('.del-entry').forEach(btn=> btn.addEventListener('click', ()=>{
+      diarioEntriesResin.splice(parseInt(btn.dataset.i),1); render();
+    }));
+  }
+  document.getElementById('dAdd').addEventListener('click', ()=>{
+    const resina = document.getElementById('dResina').value.trim();
+    const prop = document.getElementById('dProp').value.trim();
+    const notas = document.getElementById('dNotas').value.trim();
+    if(!resina && !notas) return;
+    diarioEntriesResin.push({fecha:new Date().toLocaleDateString('es-CR'), resina, prop, notas});
+    document.getElementById('dResina').value=''; document.getElementById('dProp').value=''; document.getElementById('dNotas').value='';
+    render();
+  });
+  document.getElementById('dExport').addEventListener('click', ()=>{
+    const text = diarioEntriesResin.map(e=> `${e.fecha} | Resina: ${e.resina||'—'} | Proporción: ${e.prop||'—'} | Notas: ${e.notas||'—'}`).join('\n') || 'Sin entradas registradas.';
+    downloadText('diario-de-lotes-resina.txt', text);
+  });
+  render();
+}
+
+/* Proveedor */
+function wireProveedor(){
+  document.getElementById('supplierList').innerHTML = supplierChecklist.map(i=>`<label class="check-item"><input type="checkbox"><span>${i}</span></label>`).join('');
+  document.querySelectorAll('#supplierList .check-item').forEach(it=>{
+    const cb = it.querySelector('input');
+    cb.addEventListener('change', ()=> it.classList.toggle('done', cb.checked));
+  });
+}
+
+/* Conversión */
+const unitConversions = [
+  {from:"Gramos → Onzas", calc:(v)=> (v/28.3495).toFixed(2)+" oz", unit:"g"},
+  {from:"Onzas → Gramos", calc:(v)=> (v*28.3495).toFixed(1)+" g", unit:"oz"},
+  {from:"Mililitros → Onzas fluidas", calc:(v)=> (v/29.5735).toFixed(2)+" fl oz", unit:"ml"},
+  {from:"Onzas fluidas → Mililitros", calc:(v)=> (v*29.5735).toFixed(1)+" ml", unit:"fl oz"},
+  {from:"Centímetros → Pulgadas", calc:(v)=> (v/2.54).toFixed(2)+" in", unit:"cm"},
+];
+function wireConversion(){
+  const chipsEl = document.getElementById('convChips');
+  chipsEl.innerHTML = unitConversions.map((c,i)=>`<div class="chip ${i===0?'active':''}" data-i="${i}">${c.from}</div>`).join('');
+  const chips = chipsEl.querySelectorAll('.chip');
+  const input = document.getElementById('convInput');
+  const label = document.getElementById('convLabel');
+  const out = document.getElementById('convOut');
+  let current = unitConversions[0];
+  function calc(){ out.textContent = current.calc(parseFloat(input.value)||0); }
+  function select(i){
+    chips.forEach(c=>c.classList.toggle('active', parseInt(c.dataset.i)===i));
+    current = unitConversions[i]; label.textContent = 'Valor en '+current.unit; calc();
+  }
+  chips.forEach(c=> c.addEventListener('click', ()=> select(parseInt(c.dataset.i))));
+  input.addEventListener('input', calc);
+  select(0);
+}
+
+/* FAQ */
+function wireFaq(){
+  const list = document.getElementById('faqList');
+  list.innerHTML = faqsResin.map((f,i)=>`<button class="symptom-btn" data-i="${i}">${f.q}</button>`).join('');
+  const btns = list.querySelectorAll('.symptom-btn');
+  function show(i){
+    btns.forEach(b=>b.classList.toggle('active', parseInt(b.dataset.i)===i));
+    document.getElementById('faqResult').innerHTML = `<div class="result-card"><p>${faqsResin[i].a}</p></div>`;
+  }
+  btns.forEach(b=> b.addEventListener('click', ()=> show(parseInt(b.dataset.i))));
+  show(0);
+}
+
+/* Glossary */
+function wireGlossary(){
+  const input = document.getElementById('glossSearch');
+  function render(filter=''){
+    const list = glossaryResin.filter(g=> g.t.toLowerCase().includes(filter.toLowerCase()));
+    document.getElementById('glossList').innerHTML = list.length
+      ? list.map(g=>`<div class="gterm"><b>${g.t}</b><p>${g.d}</p></div>`).join('')
+      : `<p>No se encontraron términos.</p>`;
+  }
+  input.addEventListener('input', e=> render(e.target.value));
+  render();
+}
+
+/* Curso completo — CTA final */
+function wireCurso(){
+  const btn = document.getElementById('toggleTemario');
+  const box = document.getElementById('temarioBox');
+  if(temarioResin.length === 0){
+    box.innerHTML = `<div class="tip-box" style="border-left-color:var(--accent);">⚠️ <b>Pendiente:</b> aquí va el temario de tu curso de resina. Envíame el documento o el texto y lo agrego en este espacio.</div>`;
+  } else {
+    box.innerHTML = temarioResin.map(mod=>`
+      <details class="acc"><summary>${mod.m}</summary><div class="acc-body"><ul>${mod.items.map(i=>`<li>${i}</li>`).join('')}</ul></div></details>`).join('') + `
+      <div class="tip-box">🎁 Bono especial: 2 asesorías en vivo al mes para aclarar dudas y preguntas.<br><br>ℹ️ Los módulos 14 al 18 se desbloquean a los 8 días de tu inscripción; el resto de las clases están disponibles desde el primer día. El acompañamiento se da en el grupo de alumnos en Telegram.</div>`;
+  }
+  btn.addEventListener('click', ()=>{
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? '📋 Ver temario completo' : '📋 Ocultar temario';
+  });
+  const hotmartBtn = document.getElementById('hotmartBtn');
+  hotmartBtn.href = 'https://go.hotmart.com/V101341275T?ap=1d28';
+  hotmartBtn.textContent = '💎 Adquiérelo aquí por $37 USD';
+  hotmartBtn.style.opacity = '1';
+}
+</script>
+</body>
+</html>
